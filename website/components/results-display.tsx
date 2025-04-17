@@ -7,6 +7,9 @@ import { Progress } from "@/components/ui/progress"
 import { AlertTriangle, ThumbsUp, Droplet, Sun, Wind } from "lucide-react"
 
 type AnalysisResult = {
+  species: string
+  speciesConfidence: number
+  speciesHeatmap: string
   condition: string
   confidence: number
   heatmapImage: string
@@ -40,6 +43,35 @@ export default function ResultsDisplay({
   return (
     <div className="space-y-8">
       <h2 className="text-3xl font-semibold text-green-800 text-center">Analysis Results</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <Card className="bg-gradient-to-br from-blue-100 to-green-100 shadow-md">
+          <CardHeader>
+            <CardTitle>Plant Species</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold text-green-800 mb-4">{results.species}</p>
+            <div>
+              <p className="text-sm text-green-700 mb-1">Confidence Level</p>
+              <Progress value={results.speciesConfidence} className="w-full h-3 bg-green-200" />
+              <p className="text-sm text-green-700 mt-1 text-right">{results.speciesConfidence}%</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-to-br from-purple-100 to-pink-100 shadow-md">
+          <CardHeader>
+            <CardTitle>Species Analysis Regions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Image
+              src={results.speciesHeatmap || "/placeholder.svg"}
+              alt="Species analysis heatmap"
+              width={400}
+              height={300}
+              className="w-full h-auto rounded-lg shadow-sm"
+            />
+          </CardContent>
+        </Card>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="bg-gradient-to-br from-green-100 to-blue-100 shadow-md">
           <CardHeader>

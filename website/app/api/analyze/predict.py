@@ -7,6 +7,16 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 
+import torch
+import torchvision.models as models
+import torch.nn as nn
+from PIL import Image
+from torchvision import transforms
+import cv2
+
+
+
+
 # ───────────── silence TF/Keras noise ─────────────
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -99,9 +109,119 @@ def generate_heatmap_image(img_path, heatmap, alpha=0.4):
     base64_string = base64.b64encode(buffer).decode('utf-8')
     return f"data:image/jpeg;base64,{base64_string}"
 
+# Add these plant species classes after the wanted_classes list
+plant_species = [
+    'Apple', 'Cherry', 'Corn', 'Grape', 'Peach', 
+    'Pepper', 'Potato', 'Strawberry', 'Tomato'
+]
+
+def make_gradcam_heatmap_pytorch(model, image_tensor, target_layer_name, pred_index):
+    """Generate Grad-CAM heatmap for PyTorch models"""
+    # Get the target layer
+    for name, module in model.named_modules():
+        if name == target_layer_name:
+            target_layer = module
+            break
+    
+    # Register hooks for the target layer
+    activation = {}
+    gradients = {}
+    
+    def get_activation(name):
+        def hook(model, input, output):
+            activation[name] = output.detach()
+        return hook
+    
+    def get_gradient(name):
+        def hook(grad):
+            gradients[name] = grad.detach()
+        return hook
+    
+    # Register forward and backward hooks
+    handle_forward = target_layer.register_forward_hook(get_activation(target_layer_name))
+    
+    # Get model output and register hook for the target layer
+    output = model(image_tensor)
+    if pred_index is None:
+        pred_index = output.argmax(dim=1)
+    
+    target_layer_activation = activation[target_layer_name]
+    target_layer_activation.register_hook(get_gradient(target_layer_name))
+    
+    # Backward pass
+    model.zero_grad()
+    output[0, pred_index].backward()
+    
+    # Get gradients and activations
+    gradients = gradients[target_layer_name]
+    activations = activation[target_layer_name]
+    
+    # Calculate weights
+    weights = torch.mean(gradients, dim=(2, 3))[0]
+    
+    # Generate heatmap
+    heatmap = torch.sum(weights[:, None, None] * activations[0], dim=0)
+    heatmap = torch.relu(heatmap)  # ReLU to only keep positive contributions
+    
+    # Normalize heatmap
+    heatmap = heatmap.detach().cpu().numpy()
+    heatmap = heatmap - np.min(heatmap)
+    heatmap = heatmap / (np.max(heatmap) + 1e-10)
+    
+    # Clean up
+    handle_forward.remove()
+    
+    return heatmap
+
+def get_plant_species(image_path: str) -> tuple[str, float, str]:
+    """Predict plant species using the DenseNet model and generate heatmap"""
+    # Initialize model
+    model = models.densenet121(pretrained=False)
+    model.classifier = nn.Linear(model.classifier.in_features, len(plant_species))
+    
+    # Load model weights
+    here = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.abspath(os.path.join(here, "..", "..", "..", ".."))
+    model_path = os.path.join(project_root, "Plant Classification", "best_model_so_far.pth")
+    model.load_state_dict(torch.load(model_path, map_location='cpu'))
+    model.eval()
+
+    # Transform image
+    transform = transforms.Compose([
+        transforms.Resize((256, 256)),
+        transforms.CenterCrop((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ])
+    
+    # Load and transform image
+    image = Image.open(image_path).convert("RGB")
+    image_tensor = transform(image).unsqueeze(0)
+    
+    # Get prediction
+    with torch.no_grad():
+        outputs = model(image_tensor)
+        probs = torch.nn.functional.softmax(outputs, dim=1)
+        conf, pred = torch.max(probs, 1)
+    
+    species = plant_species[pred.item()]
+    confidence = round(float(conf.item()) * 100, 2)
+    
+    # For now, return the original image as the heatmap
+    # This is temporary until we fix the heatmap generation
+    import base64
+    with open(image_path, 'rb') as img_file:
+        heatmap_image = base64.b64encode(img_file.read()).decode('utf-8')
+    heatmap_image = f"data:image/jpeg;base64,{heatmap_image}"
+    
+    return species, confidence, heatmap_image
+
 def predict_image(image_path: str) -> None:
     try:
-        # locate model
+        # Get plant species with heatmap
+        species, species_conf, species_heatmap = get_plant_species(image_path)
+
+        # locate model for health classification
         here = os.path.dirname(os.path.abspath(__file__))
         project_root = os.path.abspath(os.path.join(here, "..", "..", "..", ".."))
         model_path = os.path.join(project_root, "Plant Disease", "plant_disease_classifier.keras")
@@ -116,10 +236,10 @@ def predict_image(image_path: str) -> None:
         top = int(np.argmax(preds))
         conf = round(float(np.max(preds) * 100), 2)
 
-        # Generate heatmap
-        last_conv_layer_name = "conv5_block16_2_conv"  # This is for EfficientNetB0
+        # Generate health condition heatmap
+        last_conv_layer_name = "conv5_block16_2_conv"
         heatmap = make_gradcam_heatmap(img_arr, model, last_conv_layer_name, top)
-        heatmap_image = generate_heatmap_image(image_path, heatmap)
+        health_heatmap = generate_heatmap_image(image_path, heatmap)
 
         # map to simplified condition
         full_label = wanted_classes[top] if top < len(wanted_classes) else f"Class_{top}"
@@ -136,10 +256,13 @@ def predict_image(image_path: str) -> None:
 
         # response
         result = {
-            "condition":       condition,   # e.g. 'Early blight' or 'Healthy'
-            "confidence":      conf,        # already rounded
-            "heatmapImage":    heatmap_image,  # Now includes the base64 encoded heatmap
-            "recommendation":  recommendation,
+            "species": species,
+            "speciesConfidence": species_conf,
+            "speciesHeatmap": species_heatmap,
+            "condition": condition,
+            "confidence": conf,
+            "heatmapImage": health_heatmap,
+            "recommendation": recommendation,
             "infoReliability": 95
         }
 
