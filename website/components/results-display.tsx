@@ -59,7 +59,7 @@ export default function ResultsDisplay({
         </Card>
         <Card className="bg-gradient-to-br from-purple-100 to-pink-100 shadow-md">
           <CardHeader>
-            <CardTitle>Species Analysis Regions</CardTitle>
+            <CardTitle>Species Analysis Regions of Interest</CardTitle>
           </CardHeader>
           <CardContent>
             <Image
@@ -91,7 +91,7 @@ export default function ResultsDisplay({
         </Card>
         <Card className="bg-gradient-to-br from-purple-100 to-pink-100 shadow-md">
           <CardHeader>
-            <CardTitle>Regions of Interest</CardTitle>
+            <CardTitle>Disease DetectionRegions of Interest</CardTitle>
           </CardHeader>
           <CardContent>
             <Image

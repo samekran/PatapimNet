@@ -207,12 +207,37 @@ def get_plant_species(image_path: str) -> tuple[str, float, str]:
     species = plant_species[pred.item()]
     confidence = round(float(conf.item()) * 100, 2)
     
-    # For now, return the original image as the heatmap
-    # This is temporary until we fix the heatmap generation
-    import base64
-    with open(image_path, 'rb') as img_file:
-        heatmap_image = base64.b64encode(img_file.read()).decode('utf-8')
-    heatmap_image = f"data:image/jpeg;base64,{heatmap_image}"
+    # Grad-CAM implementation
+    features = None
+    
+    def hook_fn(module, input, output):
+        nonlocal features
+        features = output.detach()
+    
+    # Register hook on the last conv layer
+    handle = model.features.denseblock4.denselayer16.conv2.register_forward_hook(hook_fn)
+    
+    # Forward pass to get features
+    with torch.no_grad():
+        _ = model(image_tensor)
+    
+    # Remove the hook
+    handle.remove()
+    
+    # Generate basic activation map from features
+    activation_map = torch.mean(features[0], dim=0)  # Average across channels
+    
+    # Normalize activation map
+    activation_map = activation_map.numpy()
+    activation_map = np.maximum(activation_map, 0)  # ReLU
+    activation_map = activation_map - np.min(activation_map)
+    activation_map = activation_map / (np.max(activation_map) + 1e-8)
+    
+    # Resize activation map to match input image size
+    activation_map = cv2.resize(activation_map, (224, 224))
+    
+    # Generate the final heatmap image
+    heatmap_image = generate_heatmap_image(image_path, activation_map)
     
     return species, confidence, heatmap_image
 
