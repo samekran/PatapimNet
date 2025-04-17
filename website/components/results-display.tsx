@@ -59,7 +59,7 @@ export default function ResultsDisplay({
         </Card>
         <Card className="bg-gradient-to-br from-purple-100 to-pink-100 shadow-md">
           <CardHeader>
-            <CardTitle>Species Analysis Regions of Interest</CardTitle>
+            <CardTitle>Species Regions of Interest</CardTitle>
           </CardHeader>
           <CardContent>
             <Image
@@ -91,7 +91,7 @@ export default function ResultsDisplay({
         </Card>
         <Card className="bg-gradient-to-br from-purple-100 to-pink-100 shadow-md">
           <CardHeader>
-            <CardTitle>Disease DetectionRegions of Interest</CardTitle>
+            <CardTitle>Disease Regions of Interest</CardTitle>
           </CardHeader>
           <CardContent>
             <Image
@@ -123,24 +123,6 @@ export default function ResultsDisplay({
               <div className="flex flex-col items-center">
                 <Wind className="w-8 h-8 text-green-500" />
                 <span className="text-sm mt-1">Air</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="md:col-span-2 bg-gradient-to-br from-blue-100 to-green-100 shadow-md">
-          <CardHeader>
-            <CardTitle>Retrieved Information Metrics</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center space-x-4">
-              <div className="w-0 h-0 border-l-[40px] border-l-transparent border-b-[80px] border-b-blue-500 border-r-[40px] border-r-transparent relative">
-                <span className="absolute top-14 left-1/2 transform -translate-x-1/2 text-white font-bold">
-                  {results.infoReliability}%
-                </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-lg font-semibold text-blue-800">Information Reliability Score</span>
-                <span className="text-sm text-blue-600">Based on data quality and relevance</span>
               </div>
             </div>
           </CardContent>
