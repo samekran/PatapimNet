@@ -110,7 +110,7 @@ export default function ResultsDisplay({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-lg text-green-800">{results.recommendation}</p>
+            <pre className="whitespace-pre-wrap text-lg text-green-800">{results.recommendation}</pre>
             <div className="flex justify-around mt-4">
               <div className="flex flex-col items-center">
                 <Droplet className="w-8 h-8 text-blue-500" />
