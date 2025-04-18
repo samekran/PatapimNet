@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/button"
 import ResultsDisplay from "./results-display"
 
 type AnalysisResult = {
+  species: string
+  speciesConfidence: number
+  speciesHeatmap: string
   condition: string
   confidence: number
   heatmapImage: string

@@ -13,8 +13,8 @@ import torch.nn as nn
 from PIL import Image
 from torchvision import transforms
 import cv2
-
-
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from analyze.rag import get_care_recommendations
 
 
 # ───────────── silence TF/Keras noise ─────────────
@@ -274,10 +274,21 @@ def predict_image(image_path: str) -> None:
         if condition == "Healthy":
             recommendation = "Based on the analysis, maintain your current care routine."
         else:
-            recommendation = (
-                f"Based on the analysis, your plant shows signs of **{condition}**. "
-                "Consult a plant specialist for treatment options."
-            )
+            # Get RAG-based recommendation
+            rag_recommendation = get_care_recommendations(species, condition)
+            
+            # Combine recommendations
+            if condition == "Healthy":
+                recommendation = (
+                    "Based on the analysis, maintain your current care routine. "
+                    f"{rag_recommendation}"
+                )
+            else:
+                recommendation = (
+                    f"Based on the analysis, your plant shows signs of **{condition}**. "
+                    f"{rag_recommendation}"
+                )
+
 
         # response
         result = {
