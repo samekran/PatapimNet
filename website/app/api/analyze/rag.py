@@ -121,7 +121,6 @@ urls = [
   "https://hort.extension.wisc.edu/articles/white-mold/",
 
   #Spider mites (two spotted spider mite)
-  "https://entomology.ca.uky.edu/ef310",
   "https://extension.usu.edu/planthealth/ipm/notes_ag/hemp-spider-mites",
   "https://www.udel.edu/academics/colleges/canr/cooperative-extension/fact-sheets/two-spotted-spider-mites/",
 

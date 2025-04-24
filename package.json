@@ -1,0 +1,23 @@
+{
+  "name": "646project",
+  "version": "1.0.0",
+  "description": "AI-Powered Plant Health Detector: A Multimodal Vision & Language System Problem Statement",
+  "main": "generate_pdf.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samekran/646Project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/samekran/646Project/issues"
+  },
+  "homepage": "https://github.com/samekran/646Project#readme",
+  "dependencies": {
+    "puppeteer": "^24.7.1"
+  }
+}
