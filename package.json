@@ -4,7 +4,8 @@
   "description": "AI-Powered Plant Health Detector: A Multimodal Vision & Language System Problem Statement",
   "main": "generate_pdf.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "next dev"
   },
   "repository": {
     "type": "git",
