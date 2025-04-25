@@ -1,51 +1,30 @@
-AI-Powered Plant Health Detector: A Multimodal Vision & Language System
-Problem Statement
+# 🌿 Patapim Net
 
-Diagnosing plant health issues like improper watering, sunlight exposure, and nutrient deficiencies requires expertise. This project develops an AI-powered Plant Health Detector using computer vision and NLP to assess plant health from an image and provide care recommendations. The system generalizes to unseen species through meta-learning and domain adaptation.
-Related Work & Dataset Availability
+A vision-language pipeline for automated plant health diagnostics. This project combines CNN-based species and disease classifiers with a large language model (LLM) to generate natural language care reports, all wrapped in a simple web interface.
 
-Previous studies focus on plant disease classification (e.g., PlantVillage). Hyperspectral imaging aids water/nutrient detection but requires special equipment. Our model integrates vision-based assessment and NLP-driven recommendations.
+## Project Structure
 
-We will use:
+- **LLM & RAG/** – Natural language generation modules for care report generation.
+- **Plant Classification/** – Colab notebook for identifying plant species using a CNN.
+- **Plant Disease/** – Colab notebook for detecting plant diseases from leaf images using a CNN.
+- **website/** – Frontend web interface built with Next.js.
 
-Plant Identification: 
+## How to Use
 
-PlantNet, 
-iNaturalist, 
-LeafSnap
+### 1. Run the Classifiers (Colab)
+The disease and species classification models are designed to be run in Google Colab:
 
-Health & Disease: 
+- Open `Plant Classification Model` and `646ProjectDisease` notebooks.
+- Upload and process plant leaf images.
+- Export the model predictions.
 
-PlantVillage, 
-CVPPP Leaf Segmentation
+### 2. Launch the Web Interface
 
-Water/Nutrient Estimation: 
+To view the full system end-to-end, run the web interface locally:
 
-RGB-NIR datasets
+```bash
+npm install
+npm run dev
+```
 
-Methodology
-
-Plant Classification: Train CNNs or Transformers (e. g. EfficientNet & ViT) for species identification.
-Water/Nutrient Analysis: Use deep learning and color-based feature extraction.
-Sun Exposure Estimation: Implement shadow analysis and color degradation detection.
-NLP-Based Recommendations: Fine-tune T5, GPT-4, BERT for care suggestions.
-
-
-Generalization to Unseen Species: Apply meta-learning and contrastive learning.
-Evaluation Metrics
-Classification Accuracy (Top-1, Top-5 accuracy on unseen species)
-Water/Nutrient Prediction (Mean Absolute Error vs. ground-truth values)
-Sunlight Estimation (Comparison with dataset metadata)
-NLP Evaluation (BLEU, ROUGE scores for recommendations)
-
-Road Map & Timeline
-Week 1: Dataset collection
-Weeks 2-3: Plant classification model
-Weeks 4-5: Water/nutrient estimation
-Week 6: Sun exposure detection
-Week 7: NLP-based recommendations
-Week 8: Model integration and testing
-Week 9: Final evaluation and report preparation
-Expected Outcomes
-A functional AI system that analyzes plant health and generates accurate care recommendations, generalizing to unseen plant species.
-AI Assistance Disclosure: Parts of this proposal were AI-generated and refined by our team.
+The main backend functional code is in website/app/api/analyze.

@@ -23,7 +23,6 @@ warnings.filterwarnings("ignore", category=UserWarning)
 logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
 # ───────────── class index → full label ─────────────
-# ⚠️ The order **must** match the class order used when the model was trained
 wanted_classes = [
     'Apple___Apple_scab', 'Apple___Black_rot', 'Apple___Cedar_apple_rust', 'Apple___healthy',
     'Cherry_(including_sour)___healthy', 'Cherry_(including_sour)___Powdery_mildew',
